@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101321">
+<title>MY LIFE OS</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101321;color:#fff;font-family:Arial,sans-serif;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.logo{font-size:23px;font-weight:800;color:#8b9cff}
+small{color:#aab0c5}
+.card{background:#1b2033;border:1px solid #303750;border-radius:16px;padding:18px;margin:15px 0}
+h1{font-size:27px;margin-bottom:5px}
+h2{font-size:18px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#252c45;padding:15px;border-radius:13px}
+.number{font-size:27px;font-weight:bold;color:#9baaff;margin-top:8px}
+input{width:100%;padding:14px;border-radius:10px;border:1px solid #414968;background:#111729;color:white;font-size:15px;margin:8px 0}
+button{border:0;border-radius:10px;padding:13px;background:#6479ff;color:white;font-weight:bold;font-size:14px;cursor:pointer}
+.add{width:100%}
+.task{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid #303750}
+.task span{overflow-wrap:anywhere}
+.done{text-decoration:line-through;color:#8991a8}
+.complete{background:#273e39;color:#75e5b0;white-space:nowrap}
+.bar{height:10px;background:#343b55;border-radius:20px;overflow:hidden;margin-top:12px}
+.fill{height:100%;width:0;background:#8295ff;transition:.3s}
+footer{text-align:center;color:#8991a8;font-size:12px;margin:30px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">MY LIFE OS</div>
+  <div>⚡ <b id="xp">0</b> XP</div>
+</header>
+
+<h1>Your Life. Your Rules.</h1>
+<small>Welcome to your personal command center.</small>
+
+<div class="card">
+  <small>YOUR CURRENT LEVEL</small>
+  <h1>LEVEL <span id="level">1</span> 🏆</h1>
+  <div><span id="current">0</span> / 100 XP</div>
+  <div class="bar"><div class="fill" id="progress"></div></div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <small>TOTAL TASKS</small>
+    <div class="number" id="total">0</div>
+  </div>
+  <div class="stat">
+    <small>COMPLETED</small>
+    <div class="number" id="completed">0</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>➕ Create a New Task</h2>
+  <input id="taskInput" placeholder="What do you want to achieve?">
+  <button class="add" onclick="addTask()">+ Add Task</button>
+</div>
+
+<div class="card">
+  <h2>🎯 My Tasks</h2>
+  <div id="taskList"><small>No tasks yet. Add your first task!</small></div>
+</div>
+
+<div class="card">
+  <h2>📊 Your Progress</h2>
+  <h1 id="percent">0%</h1>
+  <small>Overall task completion</small>
+</div>
+
+<footer>MY LIFE OS · Build Your Better Life</footer>
+
+<script>
+let tasks=JSON.parse(localStorage.getItem("lifeTasks")||"[]");
+
+function save(){
+ localStorage.setItem("lifeTasks",JSON.stringify(tasks));
+ render();
+}
+
+function addTask(){
+ let input=document.getElementById("taskInput");
+ let name=input.value.trim();
+ if(!name)return;
+ tasks.push({name:name,done:false});
+ input.value="";
+ save();
+}
+
+function completeTask(index){
+ if(tasks[index].done)return;
+ tasks[index].done=true;
+ save();
+}
+
+function render(){
+ let xp=tasks.filter(t=>t.done).length*20;
+ let total=tasks.length;
+ let completed=tasks.filter(t=>t.done).length;
+ let level=Math.floor(xp/100)+1;
+
+ document.getElementById("xp").textContent=xp;
+ document.getElementById("level").textContent=level;
+ document.getElementById("current").textContent=xp%100;
+ document.getElementById("progress").style.width=(xp%100)+"%";
+ document.getElementById("total").textContent=total;
+ document.getElementById("completed").textContent=completed;
+ document.getElementById("percent").textContent=
+ total?Math.round(completed/total*100)+"%":"0%";
+
+ let list=document.getElementById("taskList");
+ list.innerHTML="";
+
+ if(!total){
+ list.innerHTML="<small>No tasks yet. Add your first task!</small>";
+ return;
+ }
+
+ tasks.forEach((task,index)=>{
+ let div=document.createElement("div");
+ div.className="task";
+ let span=document.createElement("span");
+ span.textContent=task.name;
+ if(task.done)span.className="done";
+ let btn=document.createElement("button");
+ btn.className="complete";
+ btn.textContent=task.done?"✓ Done":"+20 XP";
+ btn.disabled=task.done;
+ btn.onclick=()=>completeTask(index);
+ div.append(span,btn);
+ list.appendChild(div);
+ });
+}
+render();
+</script>
+</body>
+  </html>
+    
